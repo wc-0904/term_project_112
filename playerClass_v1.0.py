@@ -1,9 +1,9 @@
-from cmu_graphics import *
-
-def onAppStart(app):
-    app.width = 288*4
-    app.height = 192*4
-    app.player = Player(app.width/2, app.height/2)
+# uncomment lines below to test here
+# from cmu_graphics import *
+# def onAppStart(app):
+#     app.width = 288*4
+#     app.height = 192*4
+#     app.player = Player(app.width/2, app.height/2)
 
 class Player():
 
@@ -23,11 +23,12 @@ class Player():
     def getPosition(self):
         return [self.x, self.y]
 
-def redrawAll(app):
-    app.player.draw()
-    drawLabel(f'{app.player.getPosition()}', 100, 100)
+# uncomment lines below to test here
+# def redrawAll(app):
+#     app.player.draw()
+#     drawLabel(f'{app.player.getPosition()}', 100, 100)
 
-def main():
-    runApp()
+# def main():
+#     runApp()
     
-main()
+# main()

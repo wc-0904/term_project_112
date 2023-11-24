@@ -9,9 +9,6 @@ def onAppStart(app):
     app.c2x = app.width/2       #outer circle X
     app.c2y = app.height/2      #outer circle Y
     app.c2r = 10                #outer circle radius
-    # app.refX = app.width/2
-    # app.refY = app.height/2
-    # app.distFromRef = distance(app.c2x, app.c2y, app.refX, app.refY)
 
 
 
@@ -34,8 +31,8 @@ class Player():
         return [self.x, self.y]
 
 
-
-def cursorUpdate(app, mouseX, mouseY, distFromRef):      #assigns cursor center to mouse location
+#function assigns cursor center to mouse location
+def cursorUpdate(app, mouseX, mouseY, distFromRef):
     app.c1x = app.c2x = mouseX
     app.c1y = app.c2y = mouseY
     if distFromRef > 60:                #this determines how far the cursor goes without changing shape
@@ -43,34 +40,45 @@ def cursorUpdate(app, mouseX, mouseY, distFromRef):      #assigns cursor center 
     else:
         app.c2r = 10
 
-def distance(x0, y0, x1, y1):                   #helper
+#helper
+def distance(x0, y0, x1, y1):
     return ((x1-x0)**2 + (y0-y1)**2)**0.5
+
 
 def redrawAll(app):
     app.player.draw()
     drawCircle(app.c1x, app.c1y, 3, fill='black', border=None)      #draws inner circle
-    drawCircle(app.c2x, app.c2y, app.c2r, fill=None, border='black')
-    # drawCircle(app.refX, app.refY, 7, fill='blue')           #reference circle, this would be the players position in game
+    drawCircle(app.c2x, app.c2y, app.c2r, fill=None, border='black') #draws outer circle
+
 
 def onMouseMove(app, mouseX, mouseY):
+    #'remembers' last mouse location when moving
     app.lastMouseX = mouseX
-    app.lastMouseY = mouseY             #'remembers' last mouse location
+    app.lastMouseY = mouseY
 
 def onMouseDrag(app, mouseX, mouseY):
+    #'remembers' last mouse location when dragging
     app.lastMouseX = mouseX
-    app.lastMouseY = mouseY             #'remembers' last mouse location
+    app.lastMouseY = mouseY
+
 
 def onStep(app):
+    # update player postion, distance from player to cursor, and update cursor size on every step
     playerPosition = app.player.getPosition()
     distFromPlayer = distance(app.c2x,app.c2y, playerPosition[0], playerPosition[1])
-    # app.distFromRef = distance(app.c2x, app.c2y, app.refX, app.refY)    #updates ref distance on every step
-    cursorUpdate(app, app.lastMouseX, app.lastMouseY, distFromPlayer)                   #calls update func on every step
+    cursorUpdate(app, app.lastMouseX, app.lastMouseY, distFromPlayer)
+
+
 
 def onKeyHold(app, keys):
+
+    #these update the player location
     if 'right' in keys:
         app.player.x += 5
     elif 'left' in keys:
         app.player.x -= 5
+
+    #add 'stair' logic below
     if 'up' in keys:
         app.player.y -= 5
     elif 'down' in keys:
