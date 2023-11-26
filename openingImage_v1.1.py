@@ -26,7 +26,7 @@ resized_spritesheet.save('resized_spritesheet.png')
 def onAppStart(app):
     app.spriteCounter = 0
     app.stepCount = 0
-    app.stepsPerSecond = 10
+    # app.stepsPerSecond = 10
 
     player_spritesheet = Image.open('resized_spritesheet.png')
 
@@ -37,8 +37,8 @@ def onAppStart(app):
 
 def onStep(app):
     app.stepCount +=1
-    # if ___
-    app.spriteCounter = (1+app.spriteCounter) % len(app.sprites)
+    if app.stepCount%3 == 0:
+        app.spriteCounter = (1+app.spriteCounter) % len(app.sprites)
 
 def redrawAll(app):
     currSprite = app.sprites[app.spriteCounter]
