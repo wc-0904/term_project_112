@@ -1,7 +1,7 @@
 from cmu_graphics import *
 from PIL import Image
 
-FILENAME = 'images/sample-spritestrip.png'
+FILENAME = 'images/player_running.png'
 OUTPUT_SIZE = (6*50, 50)
 
 input_spritesheet = Image.open(FILENAME)
