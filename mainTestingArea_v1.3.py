@@ -191,9 +191,7 @@ def getWallHit(app):
     playerBounds = app.player.getPlayerBounds(app)
     for wall in range(app.walls):
         wallBounds = getWallBounds(app, wall)
-        print(f'wallBounds are: {wallBounds}')
         if (boundsIntersect(playerBounds, wallBounds) == True):
-            print('here')
             return wall
     return -1
     
@@ -222,7 +220,6 @@ def redrawAll(app):
         (x0, y0, x1, y1) = getWallBounds(app, wall)
         if (wall == app.currentWallHit):
             fill = "orange"
-            print('wall is orange')
         else: fill = "pink"
         drawRect(x0-sx, y0, x1-x0, y1-y0, fill=fill)
         (cx, cy) = ((x0+x1)/2 - sx, (y0 + y1)/2)
