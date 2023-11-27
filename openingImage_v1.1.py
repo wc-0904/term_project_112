@@ -11,6 +11,12 @@ resized_spritesheet = input_spritesheet.resize((OUTPUT_SIZE[0], OUTPUT_SIZE[1]))
 
 resized_spritesheet.save('resized_spritesheet.png')
 
+flipped_spritesheet = input_spritesheet.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+
+flipped_spritesheet.save('flipped_spritesheet.png')
+
+flipped_spritesheet.show()
+
 # Image.new("RGB", (OUTPUT_SIZE[0]*gif.n_frames, OUTPUT_SIZE[1]))
 # gif.show()
 
