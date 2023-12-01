@@ -1,3 +1,5 @@
+# for citations, see latest "mainTestingArea"
+
 # uncomment lines below to test here
 # from cmu_graphics import *
 # def onAppStart(app):

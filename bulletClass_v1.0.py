@@ -1,3 +1,5 @@
+# for citations, see latest "mainTestingArea"
+
 class Bullet():
 
     def __init__(self, x, y, char, angle):

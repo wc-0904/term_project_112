@@ -4,8 +4,11 @@ import math
 
 # I've taken inspiration from a number of games and tutorials online
 # I've also used sprites found online
-# Please check the text file included in the folder
-# For all the citations
+# Please check the text file included in the folder for all the citations
+# This game was insprired by the orignial game "Deadbolt"
+# https://www.youtube.com/watch?v=SbcZ0GtPsvI&t=1733s
+# I took many small ideas from this tutorial playlist:
+# https://youtube.com/playlist?list=PLjcN1EyupaQm20hlUE11y9y8EY2aXLpnv&si=d5wfh5x85H8WbyaK
 
 def onAppStart(app):
     app.width = 288*4
@@ -27,7 +30,11 @@ def onAppStart(app):
     app.spriteCounter = 0
     app.stepCount = 0
 
-    #side scrolling stuff and player width
+    # took inspiration from previous 15-112 tutorials for sidescrolling
+    # throughout the app
+    # https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+    
+    # side scrolling stuff and player width
     app.scrollX = 0
     app.scrollMargin = 50
     app.playerX = app.player.getPosition()[0]
@@ -47,10 +54,16 @@ def onAppStart(app):
     # calls to idle animations
     app.player.currentMovement('idle', app)
 
+
+# took inspiration from the videos below to create the bullet class
+# https://www.youtube.com/watch?v=JmpA7TU_0Ms
+# https://www.youtube.com/watch?v=glah2YjuY2A
+
 class Bullet():
 
     def __init__(self, x, y, char, angle):
         
+        # took inspiration from 15-112 class lecture demos for bullet physics
         # position, velocity, and acceleration
         self.x = x
         self.y = y
@@ -78,13 +91,12 @@ class Bullet():
             pass
         if char == 'enemy3':
             pass
-        print(self.angle)
+        
 
     # draws the bullet
     def draw(self):
         drawCircle(self.x, self.y, 5, fill='blue')
     
-
 
     # step function
     def step(self, app):
@@ -95,7 +107,7 @@ class Bullet():
         self.dx += self.ddx
         self.dy += self.ddy
 
-        # decrement timer
+        # decrement timer every step
         self.timer -= 1
 
         # different pattern to be added below
@@ -106,7 +118,8 @@ class Bullet():
             app.bulletList.remove(self)
     
         
-
+# took inspiration from this tutorial to create player class and overall code
+# organization: https://youtube.com/playlist?list=PLjcN1EyupaQm20hlUE11y9y8EY2aXLpnv&si=d5wfh5x85H8WbyaK
 class Player():
 
     def __init__(self, type, x, y):
@@ -120,6 +133,9 @@ class Player():
         self.height = 50
         self.type = type
 
+        # 
+        # used a sprite from this website:
+        # https://www.codeandweb.com/texturepacker/tutorials/how-to-create-a-sprite-sheet
         # sprite animation stuff
         # name both idle and running animation
         self.imageIdle = f'images/{type}_idle.png' #dont have this animation yet
@@ -179,7 +195,6 @@ class Player():
             for i in range(6):
                 sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
                 self.animationList.append(sprite)
-        # self.makePlayerVisible(app)
         makePlayerVisible(app)
         checkForNewWallHit(app)            
 
@@ -198,6 +213,11 @@ class Player():
         (x1, y1) = (x0 + self.width, y0 + self.height)
         return (x0, y0, x1, y1)
     
+
+    # Took inspiration from older 15-112 websites for collision logic below:
+    # https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+
+
     # #function below should be adjust for doors
     # def getWallHit(self, app):
     #     playerBounds = self.getPlayerBounds(app)
@@ -228,6 +248,7 @@ class Player():
     #         app.scrollX = self.x - app.scrollMargin
     #     if (self.x > app.scrollX + app.width - app.scrollMargin):
     #         app.scrollX = self.x - app.width + app.scrollMargin
+
 
     # bullet drawing function, this only appends to the bullet list
     def drawBullet(self, app, mouseX, mouseY):
@@ -359,7 +380,7 @@ def onKeyHold(app, keys):
         app.player.currentMovement('a', app)
     
     
-    #add 'stair' logic below
+    # add 'stair' logic below
     if 'w' in keys:
         # app.player.y -= 5
         # app.player.currentMovement('idle', app)

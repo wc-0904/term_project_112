@@ -1,3 +1,5 @@
+# for citations, see latest "mainTestingArea"
+
 from cmu_graphics import *
 from PIL import Image
 
