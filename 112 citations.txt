@@ -1,0 +1,13 @@
+This game is taking inspiration from the original 2D game called "Deadbolt"
+Link for sample gameplay: https://www.youtube.com/watch?v=SbcZ0GtPsvI&t=1733s
+
+Citations for various logic and code organization inspiration:
+Demos from Lecture (for bullet physics, sprite animation, etc.)
+Bullet: https://www.youtube.com/watch?v=JmpA7TU_0Ms
+Shooter Game Tutorial: https://youtube.com/playlist?list=PLjcN1EyupaQm20hlUE11y9y8EY2aXLpnv&si=d5wfh5x85H8WbyaK
+Mouse aiming and shooting logic: https://www.youtube.com/watch?v=glah2YjuY2A
+Sidescrolling: https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+
+Sprites and Other Animations:
+https://www.codeandweb.com/texturepacker/tutorials/how-to-create-a-sprite-sheet
+
