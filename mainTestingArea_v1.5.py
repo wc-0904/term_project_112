@@ -23,9 +23,9 @@ def onAppStart(app):
     app.lvl1Intersect = False
     app.lvl2Intersect = False
 
-    app.ground = app.height/2
-
     # player and enemy instances on level creation
+    # also set starting ground level
+    app.ground = app.height/2
     app.player = Player('player', app.width/2, app.ground - 25)
 
     # cursor stuff
@@ -94,7 +94,7 @@ class Bullet():
             self.pattern = 'straight'
             self.dx = math.cos(self.angle)*15
             self.dy = -(math.sin(self.angle)*15)
-            self.ddy = 0.2
+            self.ddy = 0.0
 
             # for this, we know our stepsPerSec is 30, but other wise we'd multiply by app.stepsPerSecond
             self.timer = 5*30
@@ -300,13 +300,7 @@ def drawButton(label, x, y, width, height, color):
 # Based on screens logic from Mike's 15-112 lecture demo
 # -----------------------lvl1 Screen--------------------------------------------
 def lvl1_redrawAll(app):
-    #draws cursor inner & outer circle
-    drawCircle(app.c1x, app.c1y, 3, fill='black', border=None)          
-    drawCircle(app.c2x, app.c2y, app.c2r, fill=None, border='black')    
-    
-    #drawing the "ground" level
-    drawLine(0, app.ground, app.width, app.ground)
-
+        
     # wall collision and update logic ***replace with doors
     sx = app.scrollX
     for wall in range(app.walls):        
@@ -324,6 +318,14 @@ def lvl1_redrawAll(app):
 
     # draw player/enemies
     app.player.draw(app)
+
+    #drawing the "ground" level
+    drawLine(0, app.ground, app.width, app.ground)
+
+    #draws cursor inner & outer circle
+    drawCircle(app.c1x, app.c1y, 3, fill='black', border=None)          
+    drawCircle(app.c2x, app.c2y, app.c2r, fill=None, border='black')    
+
 
 def lvl1_onMouseMove(app, mouseX, mouseY):
     #'remembers' last mouse location when moving
