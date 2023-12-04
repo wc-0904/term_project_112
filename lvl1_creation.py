@@ -15,6 +15,8 @@ def onAppStart(app):
     app.width = 288*5
     app.height = 192*5
 
+    app.backgroundImage = Image.open('images/background.png')
+
     # lvl1 testing
     app.tracking = False
     app.lineX0 = None
@@ -466,6 +468,9 @@ def lvl1_redrawAll(app):
     #     drawRect(x0-sx, y0, x1-x0, y1-y0, fill=fill)
     #     (cx, cy) = ((x0+x1)/2 - sx, (y0 + y1)/2)
     #     drawLabel(str(app.wallPoints[wall]), cx, cy)
+
+    # draw background
+    drawImage(CMUImage(app.backgroundImage), 0, 0)
 
     # drawing the "base ground"
     drawLine(0, app.ground1, app.width, app.ground1, lineWidth = 5)
