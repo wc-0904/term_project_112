@@ -17,6 +17,8 @@ def onAppStart(app):
 
     app.backgroundImage = Image.open('images/background.png')
     app.menuBackground = Image.open('images/menu_background.png')
+    app.painting1 = Image.open('images/painting1.png')
+    app.decor = Image.open('images/decor.png')
 
     # welcome screen stuff
     app.buttonW = 600
@@ -472,6 +474,11 @@ def lvl1_redrawAll(app):
     # draw backgrounds
     drawImage(CMUImage(app.backgroundImage), 0, 0)
     drawImage(CMUImage(app.lvl1_background), 400-app.scrollX, app.lvl1ground1-450)
+    drawImage(CMUImage(app.painting1), 800-app.scrollX, app.lvl1ground1-160)
+    drawImage(CMUImage(app.decor), 1200-app.scrollX, app.lvl1ground1-160)
+    drawImage(CMUImage(app.decor), 500-app.scrollX, app.lvl1ground2-160)
+    drawImage(CMUImage(app.decor), 1000-app.scrollX, app.lvl1ground2-160)
+    drawImage(CMUImage(app.painting1), 1200-app.scrollX, app.lvl1ground2-160)
 
     # drawing the "base ground"
     drawLine(0, app.lvl1ground1, app.width, app.lvl1ground1, lineWidth = 5)
