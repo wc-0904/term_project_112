@@ -463,15 +463,12 @@ def checkWallHit(app, object):
                 return True
         
         for door in app.lvl1doorList:
-            if ((distance(object.x, object.y, door.x, object.y) <= 
-                 object.diameter/2+5) and 
-                 (object.y >= door.y-door.height and object.y <= door.y)):
-                object.dx *= -1
-                return True
-            if ((object.x > app.lvl1doorList[0].botX) and 
-                (object.y +10 >= app.pGround or app.pGround-225 >= object.y -10)):
-                object.dy *= -1
-                return True
+            if not door.open:
+                if ((distance(object.x, object.y, door.x, object.y) <= 
+                    object.diameter/2+5) and 
+                    (object.y >= door.y-52.5 and object.y <= door.y)):
+                    object.dx *= -1
+                    return True
 
 
 
