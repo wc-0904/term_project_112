@@ -18,11 +18,6 @@ def onAppStart(app):
     app.backgroundImage = Image.open('images/background.png')
     app.menuBackground = Image.open('images/menu_background.png')
 
-    # lvl1 testing
-    app.tracking = False
-    app.lineX0 = None
-    app.lineX1 = None
-
     # welcome screen stuff
     app.buttonW = 600
     app.buttonH = 100
@@ -525,12 +520,6 @@ def lvl1_onMouseDrag(app, mouseX, mouseY):
     app.lastMouseY = mouseY
 
 def lvl1_onMousePress(app, mouseX, mouseY):
-    # lvl1 testing
-    app.tracking = not app.tracking
-    app.lineX1 = app.player.getPosition()[0]
-    if app.lineX0 == None:
-        app.lineX0 = app.player.getPosition()[0]
-
 
     if app.player.getPosition()[0] >= mouseX+app.scrollX:
         app.player.currentMovement('idle_left', app)
