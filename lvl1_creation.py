@@ -16,7 +16,7 @@ def onAppStart(app):
     app.height = 192*5
 
     app.backgroundImage = Image.open('images/background.png')
-    
+    app.menuBackground = Image.open('images/menu_background.png')
 
     # lvl1 testing
     app.tracking = False
@@ -24,8 +24,8 @@ def onAppStart(app):
     app.lineX1 = None
 
     # welcome screen stuff
-    app.buttonW = 200
-    app.buttonH = 60
+    app.buttonW = 600
+    app.buttonH = 100
     app.lvl1Fill = 'lightBlue'
     app.lvl2Fill = 'lightGreen'
     app.lvl1Intersect = False
@@ -36,47 +36,47 @@ def onAppStart(app):
     app.lvl1_background = Image.open('images/lvl1_background.png')
 
     # set ground and player Y levels
-    app.groundList = []
-    app.ground1 = 3*app.height/4
-    app.ground2 = app.ground1-225
-    app.groundList.append(app.ground1)
-    app.groundList.append(app.ground2)
-    app.pGround = app.groundList[0]
+    app.lvl1groundList = []
+    app.lvl1ground1 = 3*app.height/4
+    app.lvl1ground2 = app.lvl1ground1-225
+    app.lvl1groundList.append(app.lvl1ground1)
+    app.lvl1groundList.append(app.lvl1ground2)
+    app.pGround = app.lvl1groundList[0]
     
     # player and enemy instances on level creation
     app.player = Player('player', 100, app.pGround - 25 - 2.5)
-    # app.enemy1 = Player('enemy1', 100, app.ground1 - 25)
+    # app.enemy1 = Player('enemy1', 100, app.lvl1ground1 - 25)
 
     # set walls
-    app.vWallList = []
-    app.vWall1 = vWall('wall1', 400, app.ground1-50-2.5, 400, app.ground1 - 450)
-    app.vWall2 = vWall('wall2', 660, app.ground1-50-2.5, 660, app.ground2)
-    app.vWall3 = vWall('wall3', 1180, app.ground2-50-2.5, 1180, app.ground1 - 450)
-    app.vWall4 = vWall('wall4', 1440, app.ground1, 1440, app.ground1 - 450)
-    app.vWallList.append(app.vWall1)
-    app.vWallList.append(app.vWall2)
-    app.vWallList.append(app.vWall3)
-    app.vWallList.append(app.vWall4)
+    app.lvl1vWallList = []
+    app.lvl1vWall1 = vWall('wall1', 400, app.lvl1ground1-50-2.5, 400, app.lvl1ground1 - 450)
+    app.lvl1vWall2 = vWall('wall2', 660, app.lvl1ground1-50-2.5, 660, app.lvl1ground2)
+    app.lvl1vWall3 = vWall('wall3', 1180, app.lvl1ground2-50-2.5, 1180, app.lvl1ground1 - 450)
+    app.lvl1vWall4 = vWall('wall4', 1440, app.lvl1ground1, 1440, app.lvl1ground1 - 450)
+    app.lvl1vWallList.append(app.lvl1vWall1)
+    app.lvl1vWallList.append(app.lvl1vWall2)
+    app.lvl1vWallList.append(app.lvl1vWall3)
+    app.lvl1vWallList.append(app.lvl1vWall4)
 
     # set stairs
-    app.stairList = []
-    app.stair1 = Stair(530, app.ground1-27.5-2.5, 'up')
-    app.stair2 = Stair(530, app.ground2-27.5-2.5, 'down')
-    app.stair3 = Stair(1180+130, app.ground1-27.5-2.5, 'up')
-    app.stair4 = Stair(1180+130, app.ground2-27.5-2.5, 'down')
-    app.stairList.append(app.stair1)
-    app.stairList.append(app.stair2)
-    app.stairList.append(app.stair3)
-    app.stairList.append(app.stair4)
+    app.lvl1stairList = []
+    app.lvl1stair1 = Stair(530, app.lvl1ground1-27.5-2.5, 'up')
+    app.lvl1stair2 = Stair(530, app.lvl1ground2-27.5-2.5, 'down')
+    app.lvl1stair3 = Stair(1180+130, app.lvl1ground1-27.5-2.5, 'up')
+    app.lvl1stair4 = Stair(1180+130, app.lvl1ground2-27.5-2.5, 'down')
+    app.lvl1stairList.append(app.lvl1stair1)
+    app.lvl1stairList.append(app.lvl1stair2)
+    app.lvl1stairList.append(app.lvl1stair4)
+    app.lvl1stairList.append(app.lvl1stair3)
 
     # set doors
-    app.doorList = []
-    app.door1 = Door('door1', 400, app.ground1)
-    app.door2 = Door('door2', 660, app.ground1)
-    app.door3 = Door('door3', 1180, app.ground2)
-    app.doorList.append(app.door1)
-    app.doorList.append(app.door2)
-    app.doorList.append(app.door3)
+    app.lvl1doorList = []
+    app.lvl1door1 = Door('door1', 400, app.lvl1ground1)
+    app.lvl1door2 = Door('door2', 660, app.lvl1ground1)
+    app.lvl1door3 = Door('door3', 1180, app.lvl1ground2)
+    app.lvl1doorList.append(app.lvl1door1)
+    app.lvl1doorList.append(app.lvl1door2)
+    app.lvl1doorList.append(app.lvl1door3)
 #-------------------------------------------------------------------------------
     # cursor stuff
     app.c1x = app.width/2       #cursor inner circle X
@@ -412,7 +412,7 @@ def cursorUpdate(app, mouseX, mouseY, distFromRef):
 
 # collision logic for walls
 def checkWallHit(app):
-    for vWall in app.vWallList:
+    for vWall in app.lvl1vWallList:
         if ((app.player.x+25 >= vWall.botX) 
              and (app.player.x-25 <= vWall.botX) 
              and (app.player.y-25 >= vWall.topY)
@@ -424,7 +424,7 @@ def checkWallHit(app):
 
 # collision logic for doors
 def checkDoorHit(app):
-    for door in app.doorList:
+    for door in app.lvl1doorList:
         if not door.open:
             if ((app.player.x+25 >= door.x) 
              and (app.player.x-25 <= door.x)
@@ -452,8 +452,8 @@ def getWallBounds(app, wall):
     return (x0, y0, x1, y1)
 
 def drawButton(label, x, y, width, height, color):
-    drawRect(x-width/2, y-height/2, width, height, fill=color)
-    drawLabel(label, x, y, size=20)
+    drawRect(x-width/2, y-height/2, width, height, border='black', borderWidth=5, fill=color)
+    drawLabel(label, x, y, font='monospace', size=90)
 # ------------------------------------------------------------------------------
 
 
@@ -476,31 +476,31 @@ def lvl1_redrawAll(app):
 
     # draw backgrounds
     drawImage(CMUImage(app.backgroundImage), 0, 0)
-    drawImage(CMUImage(app.lvl1_background), 400-app.scrollX, app.ground1-450)
+    drawImage(CMUImage(app.lvl1_background), 400-app.scrollX, app.lvl1ground1-450)
 
     # drawing the "base ground"
-    drawLine(0, app.ground1, app.width, app.ground1, lineWidth = 5)
+    drawLine(0, app.lvl1ground1, app.width, app.lvl1ground1, lineWidth = 5)
 
     # ---------------******LEVEL SPECIFIC******---------------------------------
     # draw vertical walls
-    for vWall in app.vWallList:
+    for vWall in app.lvl1vWallList:
         vWall.drawWall(app)
 
     # draw stairs
-    for stair in app.stairList:
+    for stair in app.lvl1stairList:
         stair.drawStair(app)
 
     # draw doors
-    for door in app.doorList:
+    for door in app.lvl1doorList:
         door.drawDoor(app)
 
     # draw floor 1, floor 2, and roof
-    drawLine(400-app.scrollX, app.ground1, 1440-app.scrollX, app.ground1, lineWidth = 5)
-    drawLine(400-app.scrollX, app.ground2, 1440-app.scrollX, app.ground2, lineWidth = 5)
-    drawLine(400-app.scrollX-2.5, app.ground1-450, 1440-app.scrollX+2.5, app.ground1-450, lineWidth = 5)
+    drawLine(400-app.scrollX, app.lvl1ground1, 1440-app.scrollX, app.lvl1ground1, lineWidth = 5)
+    drawLine(400-app.scrollX, app.lvl1ground2, 1440-app.scrollX, app.lvl1ground2, lineWidth = 5)
+    drawLine(400-app.scrollX-2.5, app.lvl1ground1-450, 1440-app.scrollX+2.5, app.lvl1ground1-450, lineWidth = 5)
     
     # underground
-    drawRect(0, app.ground1, app.width, app.height-app.ground1, fill='black')
+    drawRect(0, app.lvl1ground1, app.width, app.height-app.lvl1ground1, fill='black')
 
     # draw player/enemies
     app.player.draw(app)
@@ -556,11 +556,11 @@ def lvl1_onStep(app):
         bullet.step(app) 
     
     # updates stair bounds
-    for stair in app.stairList:
+    for stair in app.lvl1stairList:
         stair.setStairBounds(app)
     
     # updates door bounds
-    for door in app.doorList:
+    for door in app.lvl1doorList:
         door.setDoorBounds(app)
     
     
@@ -604,20 +604,20 @@ def lvl1_onKeyRelease(app, key):
         app.player.currentMovement('idle_left', app)
     
     if (key == 'w'):
-        for stair in app.stairList:
+        for stair in app.lvl1stairList:
             if boundsIntersect(app.player.bounds, stair.bounds):
                 if stair.type == 'up':
-                    app.pGround = app.groundList[app.groundList.index(app.pGround)+1]
+                    app.pGround = app.lvl1groundList[app.lvl1groundList.index(app.pGround)+1]
                     app.player.y -= 225
     if (key == 's'):
-        for stair in app.stairList:
+        for stair in app.lvl1stairList:
             if boundsIntersect(app.player.bounds, stair.bounds):
                 if stair.type == 'down':
-                    app.pGround = app.groundList[app.groundList.index(app.pGround)-1]
+                    app.pGround = app.lvl1groundList[app.lvl1groundList.index(app.pGround)-1]
                     app.player.y += 225
     
     if (key == 'e'):
-        for door in app.doorList:
+        for door in app.lvl1doorList:
             if boundsIntersect(app.player.bounds, door.bounds):
                 door.open = not door.open
 
@@ -633,22 +633,30 @@ def lvl1_onKeyRelease(app, key):
 # ---------------------Main Menu------------------------------------------------
 
 def menu_redrawAll(app):
-    drawLabel("Ghost of Downtown", app.width/2, app.height/8, size=45)
-    drawButton('Level 1', app.width/2, app.height/8+100, app.buttonW, app.buttonH, app.lvl1Fill)
-    drawButton('Level 2', app.width/2, app.height/8+200, app.buttonW, app.buttonH, app.lvl2Fill)
+    # drawLabel("Ghost of Downtown", app.width/2, app.height/8, size=45)
+    drawImage(CMUImage(app.menuBackground), 0, 0)
+    drawButton('Level 1', 3*app.width/4, app.height/3, app.buttonW, app.buttonH, app.lvl1Fill)
+    drawButton('Level 2', 3*app.width/4, 2*app.height/3, app.buttonW, app.buttonH, app.lvl2Fill)
+
+    #draws cursor inner & outer circle
+    drawCircle(app.c1x, app.c1y, 3, fill='darkRed', border=None)          
+    drawCircle(app.c2x, app.c2y, app.c2r, fill=None, border='darkRed') 
 
 def menu_onMouseMove(app, mouseX, mouseY):
-    if (app.width/2 - app.buttonW/2 < mouseX < app.width/2 + app.buttonW/2):
-        if (app.height/8+100 - app.buttonH/2 < mouseY < app.height/8+100 + app.buttonH/2):
+    app.c1x, app.c2x = mouseX, mouseX
+    app.c1y, app.c2y = mouseY, mouseY
+
+    if (3*app.width/4 - app.buttonW/2 < mouseX < 3*app.width/4 + app.buttonW/2):
+        if (app.height/3 - app.buttonH/2 < mouseY < app.height/3 + app.buttonH/2):
             app.lvl1Fill = 'orange'
             app.lvl1Intersect = True
-        else: app.lvl1Fill, app.lvl1Intersect = 'lightBlue', False
-        if (app.height/8+200 - app.buttonH/2 < mouseY < app.height/8+200 + app.buttonH/2):
+        else: app.lvl1Fill, app.lvl1Intersect = 'darkBlue', False
+        if (2*app.height/3 - app.buttonH/2 < mouseY < 2*app.height/3 + app.buttonH/2):
             app.lvl2Fill = 'orange'
             app.lvl2Intersect = True
-        else: app.lvl2Fill, app.lvl2Intersect = 'lightGreen', False
+        else: app.lvl2Fill, app.lvl2Intersect = 'darkGreen', False
     else: 
-        app.lvl1Fill, app.lvl2Fill = 'lightBlue', 'lightGreen'
+        app.lvl1Fill, app.lvl2Fill = 'darkBlue', 'darkGreen'
         app.lvl1Intersect, app.lvl2Intersect = False, False
 
 def menu_onMousePress(app, mouseX, mouseY):
