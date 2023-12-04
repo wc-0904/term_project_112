@@ -141,7 +141,10 @@ class Bullet():
         self.ddx = 0
         self.ddy = 0
         self.angle = angle
-        self.width = self.height = 10
+        # self.width = self.height = 10
+        self.diameter = 10
+        self.r = self.diameter/2
+        self.bounds = (self.x-self.r, self.y+self.r, self.x+self.r, self.y-self.r)
 
         # set bullet pattern based on player/enemy here
         if char == 'player':
@@ -169,7 +172,7 @@ class Bullet():
 
     # draws the bullet
     def draw(self):
-        drawCircle(self.x, self.y, self.width/2, fill='blue')
+        drawCircle(self.x, self.y, self.r, fill='blue')
     
 
     # step function
@@ -182,6 +185,7 @@ class Bullet():
         self.y += self.dy
         self.dx += self.ddx
         self.dy += self.ddy
+        self.bounds = (self.x-self.r, self.y+self.r, self.x+self.r, self.y-self.r)
 
         # decrement timer every step
         self.timer -= 1
@@ -196,14 +200,13 @@ class Bullet():
                 app.bulletList.remove(self)
         self.x += (app.scrollX)
         # bullet.y -= 12.5      
-        if checkWallHit(app, self):
-            self.dx *= -1
+        checkWallHit(app, self)
         self.x -= (app.scrollX)
 
         # self deletion logic, ****add enemy collision logic here
-        if (self.timer == 0) or (self.y > bulletGround or self.y < bulletRoof):
-            # angle bounce logic here
-            app.bulletList.remove(self)
+        if (self.timer == 0):
+            if self in app.bulletList:
+                app.bulletList.remove(self)
         
 
 # **CITATION**        
@@ -236,9 +239,9 @@ class Player():
         # self.imageRunningRight = f'images/{type}_running_right.png'
         # self.imageRunningLeft = f'images/{type}_running_left.png'
 
-        self.imageIdle = CMUImage(Image.open(f'images/{type}_idle.png')) #dont have this animation yet
-        self.imageRunningRight = CMUImage(Image.open(f'images/{type}_running_right.png'))
-        self.imageRunningLeft = CMUImage(Image.open(f'images/{type}_running_left.png'))
+        self.imageIdle = (Image.open(f'images/{type}_idle.png')) #dont have this animation yet
+        self.imageRunningRight = (Image.open(f'images/{type}_running_right.png'))
+        self.imageRunningLeft = (Image.open(f'images/{type}_running_left.png'))
 
         # set direction values
         self.movingRight = False
@@ -267,7 +270,7 @@ class Player():
             # img = Image.open(self.imageRunningRight)
             self.animationList = []
             for i in range(6):
-                sprite = (img.crop((50*i, 0, 50*(i+1), 50)))
+                sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
                 self.animationList.append(sprite)
         
         # you would add the "running left" animation here
@@ -275,7 +278,7 @@ class Player():
             self.movingRight = False
             self.movingLeft = True
             self.idling = False
-            img = Image.open(self.imageRunningLeft)
+            img = (self.imageRunningLeft)
             self.animationList = []
             for i in range(6):
                 sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
@@ -286,7 +289,7 @@ class Player():
             self.movingRight = False
             self.movingLeft = False
             self.idling = True
-            img = Image.open(self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
+            img = (self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
             self.animationList = []
             for i in range(6):
                 sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
@@ -296,7 +299,7 @@ class Player():
             self.movingRight = False
             self.movingLeft = False
             self.idling = True
-            right_img = Image.open(self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
+            right_img = (self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
             img = right_img.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
             self.animationList = []
             for i in range(6):
@@ -341,11 +344,15 @@ class vWall():
         self.botY = botY
         self.topX = topX
         self.topY = topY
+        self.bounds = (self.botX-2.5, self.botY, self.topX+2.5, self.topY)
 
     def drawWall(self, app):
         drawLine(self.botX-app.scrollX, self.botY, 
                  self.topX-app.scrollX, self.topY, 
                  lineWidth = 5)
+
+    def wallStep(self):
+        self.bounds = (self.botX-2.5, self.botY, self.topX+2.5, self.topY)
 
     def __repr__(self):
         return self.name
@@ -433,17 +440,39 @@ def cursorUpdate(app, mouseX, mouseY, distFromRef):
 
 # collision logic for walls
 def checkWallHit(app, object):
-    # if type(object) == Player:
-    for vWall in app.lvl1vWallList:
-        if ((object.x+object.width/2 >= vWall.botX) 
-            and (object.x-object.width/2 <= vWall.botX) 
-            and (object.y-object.height/2 >= vWall.topY)
-            and (object.y+object.height/2 <= vWall.botY)):
-            print(f'{vWall.botX}')
-            print(vWall)
-            print(f'right: {object.x+25}, left: {object.x-25}')
-            return True
-    # if type(object) == Bullet:
+    if type(object) == Player:
+        for vWall in app.lvl1vWallList:
+            if ((object.x+object.width/2 >= vWall.botX) 
+                and (object.x-object.width/2 <= vWall.botX) 
+                and (object.y-object.height/2 >= vWall.topY)
+                and (object.y+object.height/2 <= vWall.botY)):
+                print(f'{vWall.botX}')
+                print(vWall)
+                print(f'right: {object.x+25}, left: {object.x-25}')
+                return True
+    if type(object) == Bullet:
+        for vWall in app.lvl1vWallList:
+            if ((distance(object.x, object.y, vWall.botX, object.y) <= 
+                 object.diameter/2+5) and 
+                 (object.y >= vWall.topY and object.y <= vWall.botY)):
+                object.dx *= -1
+                return True
+            if ((object.x > app.lvl1vWallList[0].botX) and 
+                (object.y +10 >= app.pGround or app.pGround-225 >= object.y -10)):
+                object.dy *= -1
+                return True
+        
+        for door in app.lvl1doorList:
+            if ((distance(object.x, object.y, door.x, object.y) <= 
+                 object.diameter/2+5) and 
+                 (object.y >= door.y-door.height and object.y <= door.y)):
+                object.dx *= -1
+                return True
+            if ((object.x > app.lvl1doorList[0].botX) and 
+                (object.y +10 >= app.pGround or app.pGround-225 >= object.y -10)):
+                object.dy *= -1
+                return True
+
 
 
 # collision logic for doors
