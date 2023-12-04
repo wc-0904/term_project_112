@@ -26,8 +26,8 @@ def onAppStart(app):
     # welcome screen stuff
     app.buttonW = 600
     app.buttonH = 100
-    app.lvl1Fill = 'lightBlue'
-    app.lvl2Fill = 'lightGreen'
+    app.lvl1Fill = 'darkBlue'
+    app.lvl2Fill = 'darkGreen'
     app.lvl1Intersect = False
     app.lvl2Intersect = False
 
