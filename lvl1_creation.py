@@ -16,6 +16,7 @@ def onAppStart(app):
     app.height = 192*5
 
     app.backgroundImage = Image.open('images/background.png')
+    
 
     # lvl1 testing
     app.tracking = False
@@ -31,6 +32,9 @@ def onAppStart(app):
     app.lvl2Intersect = False
 
 #--------------------lvl1 stuff-------------------------------------------------
+    # lvl1 background
+    app.lvl1_background = Image.open('images/lvl1_background.png')
+
     # set ground and player Y levels
     app.groundList = []
     app.ground1 = 3*app.height/4
@@ -337,12 +341,13 @@ class Stair():
     def drawStair(self, app):
         if self.type == 'up':
             drawRect(self.x-17.5-app.scrollX, self.y-27.5, 35, 55, 
-                     fill='black',border='black', borderWidth=1, opacity=70)
-            drawLine(self.x-5-app.scrollX, self.y-22.5, self.x+5-app.scrollX, self.y+22.5)
+                     fill='black',border='black', borderWidth=1, opacity=85)
+            drawLine(self.x+17.5-app.scrollX, self.y-27.5, self.x-17.5-app.scrollX, self.y+27.5)
+            drawPolygon(self.x+17.5-app.scrollX, self.y-27.5, self.x-17.5-app.scrollX, self.y+27.5, self.x+17.5-app.scrollX, self.y+27.5, fill='black')
             # drawLine()
         if self.type == 'down':
             drawRect(self.x-17.5-app.scrollX, self.y-27.5, 35, 55, 
-                     fill='black',border='black', borderWidth=1, opacity=70)
+                     fill='black',border='black', borderWidth=1)
     
     def setStairBounds(self, app):
         self.bounds = (self.x-5-app.scrollX, self.y-22.5,
@@ -359,7 +364,7 @@ class Door():
     
     def drawDoor(self, app):
         if self.open:
-            drawRect(self.x-app.scrollX-2.5, self.y-52.5, 50, 52.5, fill='brown', opacity=70, border='brown', borderWidth=5)
+            drawRect(self.x-app.scrollX-2.5, self.y-52.5, 50, 52.5, fill='brown', opacity=90, border='brown', borderWidth=5)
         else:
             drawLine(self.x-app.scrollX, self.y, self.x-app.scrollX, self.y-52.5, fill='brown', lineWidth=5)
     
@@ -469,8 +474,9 @@ def lvl1_redrawAll(app):
     #     (cx, cy) = ((x0+x1)/2 - sx, (y0 + y1)/2)
     #     drawLabel(str(app.wallPoints[wall]), cx, cy)
 
-    # draw background
+    # draw backgrounds
     drawImage(CMUImage(app.backgroundImage), 0, 0)
+    drawImage(CMUImage(app.lvl1_background), 400-app.scrollX, app.ground1-450)
 
     # drawing the "base ground"
     drawLine(0, app.ground1, app.width, app.ground1, lineWidth = 5)
