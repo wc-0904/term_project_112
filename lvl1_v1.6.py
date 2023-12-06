@@ -122,6 +122,7 @@ class Bullet():
         self.char = char
         # for this, we know our stepsPerSec is 30, but other wise we'd multiply by app.stepsPerSecond
         self.timer = 2*30
+        self.origin = (0,0)
         
         # homing stuff
         self.bulletVector = (0,0)
@@ -150,10 +151,11 @@ class Bullet():
             self.pattern = 'sinusoidal'
             self.dx = math.cos(self.angle)*15
             self.dy = -(math.sin(self.angle)*15)
-            self.ddy = 0.2
+            self.ddy = 0
             self.playerSeen = False
             self.bulletVector = (self.dx, self.dy)
             self.timer = 3*30
+            self.origin = (self.x, self.y)
             
         if char == 'enemy3':
             pass
@@ -171,7 +173,10 @@ class Bullet():
             self.bulletVector = (normVect[0]*size, normVect[1]*size)
             self.dx = self.bulletVector[0]*0.5
         if self.pattern == 'sinusoidal':
-            self.dy = math.sin(distance(self.x, self.y, app.player.x-app.scrollX, app.player.y))
+            playerVector = (app.player.x-app.scrollX-self.x, self.y+60)
+            self.bulletVector = playerVector
+            self.dx = self.bulletVector[0]
+            self.dy = self.bulletVector[1]
 
             # randomVect = (random.randint(0, app.width), random.randint(0, 100))
             # dp = dot_product(randomVect, self.trajectory)
@@ -234,12 +239,12 @@ class Bullet():
         checkWallHit(app, self)
         self.x -= (app.scrollX)
         
-        if self.pattern != 'straight':
+        if self.pattern == 'parbolic':
             self.homing(app)
             
         
-        if self.pattern != 'sinusoidal':
-            self.homing(app)
+        # if self.pattern != 'sinusoidal':
+            # self.homing(app)
             # self.dy = -10*math.sin(self.dx)
 
         # self deletion logic
@@ -728,7 +733,7 @@ def lvl1_onStep(app):
 
         if enemy.playerSeen:
             if enemy.shotTimer == 0:
-                enemy.drawBullet(app, app.player.x-app.scrollX, app.player.y)
+                enemy.drawBullet(app, app.player.x-app.scrollX, app.player.y+25)
                 enemy.shotTimer = 3*30
             else:
                 enemy.shotTimer -= 1
