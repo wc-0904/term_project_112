@@ -21,6 +21,8 @@ def onAppStart(app):
     app.begin = 0
     app.end = 0
 
+    # **CITATION**
+    # These are original images drawn using www.piskelapp.com
     app.backgroundImage = CMUImage(Image.open('images/background.png'))
     app.menuBackground = CMUImage(Image.open('images/menu_background.png'))
     app.painting1 = CMUImage(Image.open('images/painting1.png'))
@@ -176,7 +178,7 @@ class Bullet():
     
     # **CITATION**
     # I got some ideas about using vectors like this from OH
-    # homing function for enemy1 and enemy3
+    # homing function
     def homing(self, app):
         if self.pattern == 'parabolic':
             playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
@@ -852,7 +854,8 @@ def instructions_redrawAll(app):
     drawLabel("When near a door, press 'e' to open it.", app.width/2, app.height/3+50, font='monospace', fill='white', size=25, bold=True)
     drawLabel("When near stairs, press 'w' or 's' to use them accordingly.", app.width/2, app.height/3+100, font='monospace', fill='white', size=25, bold=True)
     drawLabel("Left Click the mouse buttons to shoot.", app.width/2, app.height/3+150, font='monospace', fill='white', size=25, bold=True)
-    drawLabel("Good Luck!", app.width/2, app.height/3+200, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("Press 'p' to pause and unpause.", app.width/2, app.height/3+200, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("Good Luck!", app.width/2, app.height/3+250, font='monospace', fill='white', size=25, bold=True)
 
     if app.menuIntersect:
         drawButton('Menu', app.width/2, 3*app.height/4, app.buttonW, app.buttonH, 'orange')
