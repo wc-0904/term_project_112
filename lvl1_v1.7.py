@@ -122,11 +122,9 @@ class Bullet():
         self.char = char
         # for this, we know our stepsPerSec is 30, but other wise we'd multiply by app.stepsPerSecond
         self.timer = 2*30
-        self.origin = (0,0)
         
         # homing stuff
         self.bulletVector = (0,0)
-        self.trajectory = (0,0)
 
         # set bullet pattern based on player/enemy here
         if char == 'player':
@@ -142,67 +140,30 @@ class Bullet():
             self.pattern = 'parabolic'
             self.dx = math.cos(self.angle)*15
             self.dy = -(math.sin(self.angle)*15)
-            self.ddy = 0.1
+            self.ddy = 0.4
             self.playerSeen = False
             self.bulletVector = (self.dx, self.dy)
             self.timer = 3*30
         
-        # if char == 'enemy1':
-        #     self.pattern = 'sinusoidal'
-        #     self.dx = math.cos(self.angle)*15
-        #     self.dy = -(math.sin(self.angle)*15)
-        #     self.ddy = 0
-        #     self.playerSeen = False
-        #     self.bulletVector = (self.dx, self.dy)
-        #     self.timer = 3*30
-        #     self.origin = (self.x, self.y)
-            
+        if char == 'enemy2':
+            pass
         if char == 'enemy3':
             pass
     
     def homing(self, app):
-        
-        # if self.pattern == 'parabolic':
+
         playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
         newVect = (playerVector[0]-self.bulletVector[0], playerVector[1]-self.bulletVector[1])
         normVect = normalizeVector(newVect)
         size = vectorSize(self.bulletVector)
-        self.trajectory = (normVect[0]*size, normVect[1]*size)
         self.bulletVector = (normVect[0]*size, normVect[1]*size)
-        self.dx = self.bulletVector[0]*0.5
-        if self.pattern == 'sinusoidal':
-            playerVector = (app.player.x-app.scrollX-self.x, self.y+60)
-            self.bulletVector = playerVector
-            self.dx = self.bulletVector[0]
-            self.dy = self.bulletVector[1]
-
-            # randomVect = (random.randint(0, app.width), random.randint(0, 100))
-            # dp = dot_product(randomVect, self.trajectory)
-            # randVect = (randomVect[0]-dp*self.trajectory[0], randomVect[0]-dp*self.trajectory[0])
-            # normOrthoVect = normalizeVector(randVect)
-            # self.bulletVector = (normOrthoVect[0]*math.sin(self.timer), normOrthoVect[1]*math.sin(self.timer))
-            # self.dx = self.bulletVector[0]
-            # self.dy = self.bulletVector[1]
-            # self.bulletVector = self.trajectory
-            # self.dx = self.bulletVector[0]
-            # self.dy = self.bulletVector[1]+math.sin(radian(self.timer))
-            # self.dy *= math.sin(self.timer)
-            # self.dy = 
-            
         # normalized = (self.bulletVector)
-        
+        self.dx = 0.5*self.bulletVector[0]
         # self.dy = self.bulletVector[1]
-
-        # normBulletVect = normalizeVector(self.bulletVector)
-        # playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
-        # normPlayerVect = normalizeVector(playerVector)
-        # newVect = (normPlayerVect[0]-normBulletVect[0], normPlayerVect[1]+normBulletVect[1])
-        # # normVect = normalizeVector(newVect)
-        # size = vectorSize(self.bulletVector)
-        # self.bulletVector = (newVect[0]*size, newVect[1]*size)
-        # # normalized = (self.bulletVector)
-        # self.dx = self.bulletVector[0]
-        # # self.dy = self.bulletVector[1]
+        print(playerVector)
+        print(newVect)
+        
+        
 
     # draws the bullet
     def draw(self):
@@ -211,6 +172,9 @@ class Bullet():
 
     # step function
     def step(self, app):
+        if self.pattern == 'straight':
+            bulletGround = app.pGround
+            bulletRoof = app.pGround - 225
         # bullet physics stuff
         self.x += self.dx
         self.y += self.dy
@@ -234,13 +198,8 @@ class Bullet():
         checkWallHit(app, self)
         self.x -= (app.scrollX)
         
-        if self.pattern == 'parbolic':
+        if self.pattern != 'straight':
             self.homing(app)
-            
-        
-        # if self.pattern != 'sinusoidal':
-            # self.homing(app)
-            # self.dy = -10*math.sin(self.dx)
 
         # self deletion logic
         if (self.timer == 0):
@@ -456,14 +415,6 @@ class Door():
 
 
 #------------------------Global Functions---------------------------------------
-# **CITATION**
-# using dot product function from StackOverflow
-# link: https://stackoverflow.com/questions/35208160/dot-product-in-python-without-numpy
-def dot_product(x, y):
-    dp = 0
-    for i in range(len(x)):
-        dp += (x[i]*y[i])
-    return dp
 
 def loadLvl1(app):
     # lvl1 background
@@ -727,11 +678,6 @@ def lvl1_onStep(app):
             enemy.playerSeen = False
 
         if enemy.playerSeen:
-            # if enemy.shotTimer == 0:
-            #     enemy.drawBullet(app, app.player.x-app.scrollX, app.player.y+25)
-            #     enemy.shotTimer = 3*30
-            # else:
-            #     enemy.shotTimer -= 1
             if enemy.shotTimer == 0:
                 enemy.drawBullet(app, random.randint(0, app.width), random.randint(app.pGround-225, app.pGround))
                 enemy.shotTimer = 3*30

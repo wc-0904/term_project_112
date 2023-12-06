@@ -2,6 +2,7 @@ from cmu_graphics import *
 from PIL import Image
 import math
 import random
+import time
 
 # **CITATION**
 # I've taken inspiration from a number of games and tutorials online
@@ -16,6 +17,10 @@ def onAppStart(app):
     app.width = 288*5
     app.height = 192*5
 
+    # for the timer
+    app.begin = 0
+    app.end = 0
+
     app.backgroundImage = CMUImage(Image.open('images/background.png'))
     app.menuBackground = CMUImage(Image.open('images/menu_background.png'))
     app.painting1 = CMUImage(Image.open('images/painting1.png'))
@@ -25,14 +30,15 @@ def onAppStart(app):
     app.buttonW = 600
     app.buttonH = 100
     app.lvl1Fill = 'darkBlue'
-    app.lvl2Fill = 'darkGreen'
+    app.InstrFill = 'darkGreen'
     app.lvl1Intersect = False
-    app.lvl2Intersect = False
+    app.InstrIntersect = False
 # --------------game over stuff-------------------------------------------------
     app.gameOver_background = CMUImage(Image.open('images/background.png'))
     app.retryIntersect = False
     app.prevLvl = None
     app.menuIntersect = False
+
 #--------------------lvl1 stuff-------------------------------------------------
     # lvl1 background
     app.lvl1_background = None
@@ -122,11 +128,10 @@ class Bullet():
         self.char = char
         # for this, we know our stepsPerSec is 30, but other wise we'd multiply by app.stepsPerSecond
         self.timer = 2*30
-        self.origin = (0,0)
         
         # homing stuff
         self.bulletVector = (0,0)
-        self.trajectory = (0,0)
+        self.origin = (0, 0)
 
         # set bullet pattern based on player/enemy here
         if char == 'player':
@@ -137,7 +142,7 @@ class Bullet():
             self.dy = -(math.sin(self.angle)*15)
             self.ddy = 0
        
-
+        # dx and dy are set similarly below
         if char == 'enemy1':
             self.pattern = 'parabolic'
             self.dx = math.cos(self.angle)*15
@@ -146,63 +151,49 @@ class Bullet():
             self.playerSeen = False
             self.bulletVector = (self.dx, self.dy)
             self.timer = 3*30
+            self.origin = (self.x, self.y)
         
-        # if char == 'enemy1':
-        #     self.pattern = 'sinusoidal'
-        #     self.dx = math.cos(self.angle)*15
-        #     self.dy = -(math.sin(self.angle)*15)
-        #     self.ddy = 0
-        #     self.playerSeen = False
-        #     self.bulletVector = (self.dx, self.dy)
-        #     self.timer = 3*30
-        #     self.origin = (self.x, self.y)
-            
+        if char == 'enemy2':
+            self.pattern = 'sinusoidal'
+            self.dx = math.cos(self.angle)*10
+            self.dy = -(math.sin(self.angle)*50)
+            self.ddy = 0.1
+            self.ddx = -0.05
+            self.playerSeen = False
+            self.bulletVector = (self.dx, self.dy)
+            self.timer = 3*30
+            self.origin = (self.x, self.y)
+
         if char == 'enemy3':
-            pass
+            self.pattern = 'parabolic'
+            self.dx = math.cos(self.angle)*15
+            self.dy = -(math.sin(self.angle)*15)
+            self.ddy = 0.1
+            self.playerSeen = False
+            self.bulletVector = (self.dx, self.dy)
+            self.timer = 3*30
+            self.origin = (self.x, self.y)
     
+    # **CITATION**
+    # I got some ideas about using vectors like this from OH
+    # homing function for enemy1 and enemy3
     def homing(self, app):
+        if self.pattern == 'parabolic':
+            playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
+            newVect = (playerVector[0]-self.bulletVector[0], playerVector[1]-self.bulletVector[1])
+            normVect = normalizeVector(newVect)
+            size = vectorSize(self.bulletVector)
+            self.bulletVector = (normVect[0]*size, normVect[1]*size)
+            self.dx = 0.5*self.bulletVector[0]
         
-        # if self.pattern == 'parabolic':
-        playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
-        newVect = (playerVector[0]-self.bulletVector[0], playerVector[1]-self.bulletVector[1])
-        normVect = normalizeVector(newVect)
-        size = vectorSize(self.bulletVector)
-        self.trajectory = (normVect[0]*size, normVect[1]*size)
-        self.bulletVector = (normVect[0]*size, normVect[1]*size)
-        self.dx = self.bulletVector[0]*0.5
         if self.pattern == 'sinusoidal':
-            playerVector = (app.player.x-app.scrollX-self.x, self.y+60)
-            self.bulletVector = playerVector
-            self.dx = self.bulletVector[0]
-            self.dy = self.bulletVector[1]
-
-            # randomVect = (random.randint(0, app.width), random.randint(0, 100))
-            # dp = dot_product(randomVect, self.trajectory)
-            # randVect = (randomVect[0]-dp*self.trajectory[0], randomVect[0]-dp*self.trajectory[0])
-            # normOrthoVect = normalizeVector(randVect)
-            # self.bulletVector = (normOrthoVect[0]*math.sin(self.timer), normOrthoVect[1]*math.sin(self.timer))
-            # self.dx = self.bulletVector[0]
-            # self.dy = self.bulletVector[1]
-            # self.bulletVector = self.trajectory
-            # self.dx = self.bulletVector[0]
-            # self.dy = self.bulletVector[1]+math.sin(radian(self.timer))
-            # self.dy *= math.sin(self.timer)
-            # self.dy = 
+            if (self.y >= app.player.y+15):
+                self.dy = -5
+                self.ddy *= -1
+            elif  (self.y <= app.player.y-15):
+                self.dy = 5
+                self.ddy *= -1
             
-        # normalized = (self.bulletVector)
-        
-        # self.dy = self.bulletVector[1]
-
-        # normBulletVect = normalizeVector(self.bulletVector)
-        # playerVector = (app.player.x-app.scrollX-self.x, app.player.y-self.y)
-        # normPlayerVect = normalizeVector(playerVector)
-        # newVect = (normPlayerVect[0]-normBulletVect[0], normPlayerVect[1]+normBulletVect[1])
-        # # normVect = normalizeVector(newVect)
-        # size = vectorSize(self.bulletVector)
-        # self.bulletVector = (newVect[0]*size, newVect[1]*size)
-        # # normalized = (self.bulletVector)
-        # self.dx = self.bulletVector[0]
-        # # self.dy = self.bulletVector[1]
 
     # draws the bullet
     def draw(self):
@@ -211,18 +202,20 @@ class Bullet():
 
     # step function
     def step(self, app):
-        # bullet physics stuff
+        # **CITATION**
+        # inspiration from mike's lecture demo
+        # bullet physics stuff 
         self.x += self.dx
         self.y += self.dy
-        self.dx += self.ddx
+        if self.dx < 0:
+            self.dx += self.ddx*(-1)
+        else:
+            self.dx += self.ddx
         self.dy += self.ddy
         self.bounds = (self.x-self.r, self.y+self.r, self.x+self.r, self.y-self.r)
 
         # decrement timer every step
         self.timer -= 1
-
-        # different pattern to be added below
-        # ...
 
         # 'kills' enemy
         for enemy in app.lvl1enemyList:
@@ -234,13 +227,8 @@ class Bullet():
         checkWallHit(app, self)
         self.x -= (app.scrollX)
         
-        if self.pattern == 'parbolic':
+        if self.pattern != 'straight':
             self.homing(app)
-            
-        
-        # if self.pattern != 'sinusoidal':
-            # self.homing(app)
-            # self.dy = -10*math.sin(self.dx)
 
         # self deletion logic
         if (self.timer == 0):
@@ -273,23 +261,16 @@ class Player():
         self.anchor = self.x+100
         
 
-        # sprite animation stuff
-        # name both idle and running animation
-        
         # **CITATION**
         # original sprites created using www.piskelapp.com
-        # ****CURRENTLY TESTING****
-        # self.imageIdle = f'images/{type}_idle.png' #dont have this animation yet
-        # self.imageRunningRight = f'images/{type}_running_right.png'
-        # self.imageRunningLeft = f'images/{type}_running_left.png'
-
+        # sprite animation stuff
+        # name both idle and running animation
         self.imageIdle = (Image.open(f'images/{type}_idle.png')) #dont have this animation yet
         self.imageRunningRight = (Image.open(f'images/{type}_running_right.png'))
         self.imageRunningLeft = (Image.open(f'images/{type}_running_left.png'))
 
         # set direction values
         if self.type != 'player':
-            # print('real')
             self.movingRight = True
             self.movingLeft = False
             self.idling = False
@@ -335,12 +316,11 @@ class Player():
                 self.animationList.append(sprite)
         
         # you would add the "idling" animation here
-        # **********CHANGING IDLE RIGHT, MOVING RIGHT FOR TESTING******************
         elif key == 'idle_right':
             self.movingRight = True
             self.movingLeft = False
             self.idling = True
-            img = (self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
+            img = (self.imageIdle)
             self.animationList = []
             for i in range(6):
                 sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
@@ -348,15 +328,16 @@ class Player():
         
         elif key == 'idle_left':
             self.movingRight = False
-            self.movingLeft = False
+            self.movingLeft = True
             self.idling = True
-            right_img = (self.imageIdle)   # don't have idle animation yet, this where I'd put an idle animation
+            right_img = (self.imageIdle)
             img = right_img.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
             self.animationList = []
             for i in range(6):
                 sprite = CMUImage(img.crop((50*i, 0, 50*(i+1), 50)))
                 self.animationList.append(sprite)
 
+        # function to account for sidescrolling (sidescrolling inspiration cited above)
         makePlayerVisible(app, app.player)
 
     def getPosition(self):
@@ -366,12 +347,6 @@ class Player():
         self.bounds = (self.x-25-5-app.scrollX, self.y-25,
                        self.x+25+5-app.scrollX, self.y+25)
     
-    def drawBounds(self, app):
-        drawLine(*self.bounds)
-    
-
-    # Took inspiration from older 15-112 websites for collision logic below:
-    # https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
 
     # bullet drawing function, this only appends to the bullet list
     def drawBullet(self, app, mouseX, mouseY):
@@ -388,6 +363,8 @@ class Player():
             bullet.bulletVector = (bullet.dx, bullet.dy)
             app.bulletList.append(bullet)
 
+# vertical wall class, to create and place vertical walls throughout levels
+# this make the creation of custom levels easier
 class vWall():
     
     def __init__(self, name, botX, botY, topX, topY):
@@ -408,7 +385,8 @@ class vWall():
 
     def __repr__(self):
         return self.name
-    
+
+# class to create and place stairs throughout the map
 class Stair():
 
     def __init__(self, x, y, type):
@@ -421,18 +399,21 @@ class Stair():
     def drawStair(self, app):
         if self.type == 'up':
             drawRect(self.x-17.5-app.scrollX, self.y-27.5, 35, 55, 
-                     fill='black',border='black', borderWidth=1, opacity=85)
+                     fill='black',border='black', borderWidth=1, opacity=80)
             drawLine(self.x+17.5-app.scrollX, self.y-27.5, self.x-17.5-app.scrollX, self.y+27.5)
             drawPolygon(self.x+17.5-app.scrollX, self.y-27.5, self.x-17.5-app.scrollX, self.y+27.5, self.x+17.5-app.scrollX, self.y+27.5, fill='black')
-            # drawLine()
         if self.type == 'down':
             drawRect(self.x-17.5-app.scrollX, self.y-27.5, 35, 55, 
                      fill='black',border='black', borderWidth=1)
-    
+            
+    # Took inspiration from older 15-112 websites for collision logic below:
+    # https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+    # for collision detection
     def setStairBounds(self, app):
         self.bounds = (self.x-5-app.scrollX, self.y-22.5,
                        self.x+5-app.scrollX, self.y+22.5)
 
+# creates and draws door instances
 class Door():
 
     def __init__(self, name, x, y):
@@ -448,6 +429,9 @@ class Door():
         else:
             drawLine(self.x-app.scrollX, self.y, self.x-app.scrollX, self.y-52.5, fill='brown', lineWidth=5)
     
+    # # Took inspiration from older 15-112 websites for collision logic below:
+    # https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+    # for collision detection
     def setDoorBounds(self, app):
         self.bounds = (self.x-app.scrollX, self.y-52.5,
                        self.x+50-app.scrollX, self.y)
@@ -456,16 +440,11 @@ class Door():
 
 
 #------------------------Global Functions---------------------------------------
-# **CITATION**
-# using dot product function from StackOverflow
-# link: https://stackoverflow.com/questions/35208160/dot-product-in-python-without-numpy
-def dot_product(x, y):
-    dp = 0
-    for i in range(len(x)):
-        dp += (x[i]*y[i])
-    return dp
 
+# stores all information about level 1, "loads" when called
 def loadLvl1(app):
+    # start timer
+    app.begin = time.time()
     # lvl1 background
     app.lvl1_background = CMUImage(Image.open('images/lvl1_background.png'))
 
@@ -481,11 +460,15 @@ def loadLvl1(app):
     app.player = Player('player', 100, app.pGround - 25 - 2.5)
     app.lvl1enemyList = []
     app.lvl1enemy1 = Player('enemy1', 660+260+260, app.lvl1ground1 - 25-2.5)
-    app.lvl1enemy2 = Player('enemy1', 660+260, app.lvl1ground1 - 25-2.5)
-    app.lvl1enemy3 = Player('enemy1', 660, app.lvl1ground2 - 25-2.5)
+    app.lvl1enemy2 = Player('enemy2', 660+260, app.lvl1ground1 - 25-2.5)
+    app.lvl1enemy3 = Player('enemy3', 660, app.lvl1ground2 - 25-2.5)
+    app.lvl1enemy4 = Player('enemy3', 660+260+285, app.lvl1ground2 - 25-2.5)
+    app.lvl1enemy5 = Player('enemy1', 425, app.lvl1ground1 - 25-2.5)
     app.lvl1enemyList.append(app.lvl1enemy1)
     app.lvl1enemyList.append(app.lvl1enemy2)
     app.lvl1enemyList.append(app.lvl1enemy3)
+    app.lvl1enemyList.append(app.lvl1enemy4)
+    app.lvl1enemyList.append(app.lvl1enemy5)
 
     # set walls
     app.lvl1vWallList = []
@@ -523,16 +506,17 @@ def loadLvl1(app):
     for enemy in app.lvl1enemyList:
         enemy.currentMovement('idle_right', app)
 
-
-
+# helper function
 def normalizeVector(vector):
     size = (vector[0]**2 + vector[1]**2)**0.5
     normalized = (vector[0]/size, vector[1]/size)
     return normalized
 
+# helper function
 def vectorSize(vector):
     return (vector[0]**2 + vector[1]**2)**0.5
 
+# accounts for sidescrolling (for sidescrolling citation, see top)
 def makePlayerVisible(app, player):
         # scroll to make player visible as needed
         if player.type == 'player': 
@@ -541,6 +525,9 @@ def makePlayerVisible(app, player):
             if (app.player.x > app.scrollX + app.width - app.scrollMargin):
                 app.scrollX = app.player.x - app.width + app.scrollMargin
 
+# # Took inspiration from older 15-112 websites for collision logic below:
+# https://www.cs.cmu.edu/~112-f22/notes/notes-animations-part4.html#sidescrollerExamples
+# for collision detection
 def boundsIntersect(boundsA, boundsB):
         # return l2<=r1 and t2<=b1 and l1<=r2 and t1<=b2
         (ax0, ay0, ax1, ay1) = boundsA
@@ -552,8 +539,12 @@ def boundsIntersect(boundsA, boundsB):
 def cursorUpdate(app, mouseX, mouseY, distFromRef):
     app.c1x = app.c2x = mouseX
     app.c1y = app.c2y = mouseY
-    if distFromRef > 150:                #this determines how far the cursor goes without changing shape
-        app.c2r = distFromRef/15         #this has to be updated along with distFromRef, divide by the 'threshold/10'
+
+    # this threshold number (150) below determines how far the cursor goes without changing shape
+    # this has to be updated along with the number that divides distFromRef,
+    # divide by the 'threshold/10'
+    if distFromRef > 150:                
+        app.c2r = distFromRef/15         
     else:
         app.c2r = 10
 
@@ -565,9 +556,6 @@ def checkWallHit(app, object):
                 and (object.x-object.width/2 <= vWall.botX) 
                 and (object.y-object.height/2 >= vWall.topY)
                 and (object.y+object.height/2 <= vWall.botY)):
-                print(f'{vWall.botX}')
-                print(vWall)
-                print(f'right: {object.x+25}, left: {object.x-25}')
                 return True
     if type(object) == Bullet:
         for vWall in app.lvl1vWallList:
@@ -589,8 +577,6 @@ def checkWallHit(app, object):
                     object.dx *= -1
                     return True
 
-
-
 # collision logic for doors
 def checkDoorHit(app, object):
     for door in app.lvl1doorList:
@@ -606,16 +592,10 @@ def checkDoorHit(app, object):
 def distance(x0, y0, x1, y1):
     return ((x1-x0)**2 + (y0-y1)**2)**0.5
 
-# #function below should be adjust for doors
-def getWallBounds(app, wall):
-    # returns absolute bounds, not taking scrollX into account
-    (x0, y1) = ((1+wall) * app.wallSpacing, app.height/2)
-    (x1, y0) = (x0 + app.wallWidth, y1 - app.wallHeight)
-    return (x0, y0, x1, y1)
-
+# used to draw buttons for the menus
 def drawButton(label, x, y, width, height, color):
     drawRect(x-width/2, y-height/2, width, height, border='black', borderWidth=5, fill=color)
-    drawLabel(label, x, y, font='monospace', size=90)
+    drawLabel(label, x, y, font='monospace', size=80)
 # ------------------------------------------------------------------------------
 
 
@@ -623,17 +603,15 @@ def drawButton(label, x, y, width, height, color):
 # Based on screens logic from Mike's 15-112 lecture demo
 # -----------------------lvl1 Screen--------------------------------------------
 def lvl1_redrawAll(app):
-    # TESTING*****
-    app.player.drawBounds(app)
 
     # draw backgrounds
-    # drawImage(app.backgroundImage, 0, 0)
-    # drawImage(app.lvl1_background, 400-app.scrollX, app.lvl1ground1-450)
-    # drawImage(app.painting1, 800-app.scrollX, app.lvl1ground1-160)
-    # drawImage(app.decor, 1200-app.scrollX, app.lvl1ground1-160)
-    # drawImage(app.decor, 500-app.scrollX, app.lvl1ground2-160)
-    # drawImage(app.decor, 1000-app.scrollX, app.lvl1ground2-160)
-    # drawImage(app.painting1, 1200-app.scrollX, app.lvl1ground2-160)
+    drawImage(app.backgroundImage, 0, 0)
+    drawImage(app.lvl1_background, 400-app.scrollX, app.lvl1ground1-450)
+    drawImage(app.painting1, 800-app.scrollX, app.lvl1ground1-160)
+    drawImage(app.decor, 1200-app.scrollX, app.lvl1ground1-160)
+    drawImage(app.decor, 500-app.scrollX, app.lvl1ground2-160)
+    drawImage(app.decor, 1000-app.scrollX, app.lvl1ground2-160)
+    drawImage(app.painting1, 1200-app.scrollX, app.lvl1ground2-160)
 
     # drawing the "base ground"
     drawLine(0, app.lvl1ground1, app.width, app.lvl1ground1, lineWidth = 5)
@@ -685,6 +663,7 @@ def lvl1_onMouseDrag(app, mouseX, mouseY):
 
 def lvl1_onMousePress(app, mouseX, mouseY):
 
+    # makes sure player faces the same way as bullet is shot
     if app.player.getPosition()[0] >= mouseX+app.scrollX:
         app.player.currentMovement('idle_left', app)
     else:
@@ -706,49 +685,51 @@ def lvl1_onStep(app):
     for bullet in app.bulletList:
         bullet.step(app)
 
+        # "damages" the player
         if bullet.char != 'player' and ((app.player.x-25-app.scrollX < bullet.x < app.player.x+25-app.scrollX) and
             (app.player.y-25 < bullet.y < app.player.y+25)):
             app.player.health -= 1
             if bullet.timer != 0:
               app.bulletList.remove(bullet)
+        # sets to game over screen
         if app.player.health <= 0:
             setActiveScreen('gameOver')
             app.prevLvl = 'lvl1'
 
+    # logic for when the enemy can "see" the player
     for enemy in app.lvl1enemyList:
-        # enemy.x -= app.scrollX
         if (((app.player.x-app.scrollX <= enemy.x-app.scrollX and enemy.movingLeft) or
                 (app.player.x-app.scrollX >= enemy.x-app.scrollX and enemy.movingRight)) and
                 (app.player.y == enemy.y)):
                 if distance(app.player.x, app.player.y, enemy.x, enemy.y) < 300:
                     enemy.playerSeen = True
-                # print(enemy.playerSeen)
         else:
             enemy.playerSeen = False
 
+        # enemy shooting logic
         if enemy.playerSeen:
-            # if enemy.shotTimer == 0:
-            #     enemy.drawBullet(app, app.player.x-app.scrollX, app.player.y+25)
-            #     enemy.shotTimer = 3*30
-            # else:
-            #     enemy.shotTimer -= 1
             if enemy.shotTimer == 0:
-                enemy.drawBullet(app, random.randint(0, app.width), random.randint(app.pGround-225, app.pGround))
-                enemy.shotTimer = 3*30
+                if enemy.type == 'enemy1':
+                    enemy.drawBullet(app, random.randint(0, app.width), random.randint(app.pGround-225, app.pGround))
+                    enemy.shotTimer = 3*30
+                if enemy.type == 'enemy2' or enemy.type == 'enemy3':
+                    enemy.drawBullet(app, app.player.x-app.scrollX, app.player.y)
+                    enemy.shotTimer = 3*30
             else:
                 enemy.shotTimer -= 1
         
-        if not enemy.playerSeen:
-                if ((enemy.x-app.scrollX <= enemy.anchor-app.scrollX) or 
-                    (enemy.x-app.scrollX < enemy.anchor-app.scrollX+100)) and enemy.movingRight:
-                    enemy.x += 5
-                    enemy.currentMovement('d', app)
-                else: enemy.currentMovement('a', app)
-                if ((enemy.x-app.scrollX >= enemy.anchor-app.scrollX) or 
-                    (enemy.x-app.scrollX > enemy.anchor-app.scrollX-100)) and enemy.movingLeft:
-                    enemy.x -= 5
-                    enemy.currentMovement('a',app)
-                else: enemy.currentMovement('d', app)
+        # this sets the enemies' set path when player isn't seen
+        else:
+            if ((enemy.x-app.scrollX <= enemy.anchor-app.scrollX) or 
+                (enemy.x-app.scrollX < enemy.anchor-app.scrollX+100)) and enemy.movingRight:
+                enemy.x += 5
+                enemy.currentMovement('d', app)
+            else: enemy.currentMovement('a', app)
+            if ((enemy.x-app.scrollX >= enemy.anchor-app.scrollX) or 
+                (enemy.x-app.scrollX > enemy.anchor-app.scrollX-100)) and enemy.movingLeft:
+                enemy.x -= 5
+                enemy.currentMovement('a',app)
+            else: enemy.currentMovement('d', app)
     
     # updates stair bounds
     for stair in app.lvl1stairList:
@@ -758,9 +739,13 @@ def lvl1_onStep(app):
     for door in app.lvl1doorList:
         door.setDoorBounds(app)
     
-    
     # updates player bounds
     app.player.setPlayerBounds(app)
+
+    if app.lvl1enemyList == []:
+        app.end = time.time()
+        app.prevLvl = 'lvl1'
+        setActiveScreen('win')
 
     
 def lvl1_onKeyHold(app, keys):
@@ -782,16 +767,20 @@ def lvl1_onKeyHold(app, keys):
             app.player.x += 10
 
 def lvl1_onKeyPress(app, key):
+    # pause screen
     if key == 'p':
         app.prevLvl = 'lvl1'
         setActiveScreen('pause')            
 
 def lvl1_onKeyRelease(app, key):
+
+    # makes sure player is facing the right direction when stopping movememnt
     if (key == 'd'):
         app.player.currentMovement('idle_right', app)
     elif (key == 'a'):
         app.player.currentMovement('idle_left', app)
     
+    # allows players to go upstairs or downstairs
     if (key == 'w'):
         for stair in app.lvl1stairList:
             if boundsIntersect(app.player.bounds, stair.bounds):
@@ -805,15 +794,13 @@ def lvl1_onKeyRelease(app, key):
                     app.pGround = app.lvl1groundList[app.lvl1groundList.index(app.pGround)-1]
                     app.player.y += 225
     
+    # pressing e to open doors
     if (key == 'e'):
         for door in app.lvl1doorList:
             if boundsIntersect(app.player.bounds, door.bounds):
                 door.open = not door.open
 
     
-    # if key == 'p': print(app.scrollX)
-    if key == 'x': print(app.player.x)
-    if key == 'y': print(app.player.y)
 # ------------------------------------------------------------------------------
 
 
@@ -824,7 +811,7 @@ def lvl1_onKeyRelease(app, key):
 def menu_redrawAll(app):
     drawImage(app.menuBackground, 0, 0)
     drawButton('Level 1', 3*app.width/4, app.height/3, app.buttonW, app.buttonH, app.lvl1Fill)
-    drawButton('Level 2', 3*app.width/4, 2*app.height/3, app.buttonW, app.buttonH, app.lvl2Fill)
+    drawButton('Instructions', 3*app.width/4, 2*app.height/3, app.buttonW, app.buttonH, app.InstrFill)
 
     #draws cursor inner & outer circle
     drawCircle(app.c1x, app.c1y, 3, fill='darkRed', border=None)          
@@ -840,22 +827,88 @@ def menu_onMouseMove(app, mouseX, mouseY):
             app.lvl1Intersect = True
         else: app.lvl1Fill, app.lvl1Intersect = 'darkBlue', False
         if (2*app.height/3 - app.buttonH/2 < mouseY < 2*app.height/3 + app.buttonH/2):
-            app.lvl2Fill = 'orange'
-            app.lvl2Intersect = True
-        else: app.lvl2Fill, app.lvl2Intersect = 'darkGreen', False
+            app.InstrFill = 'orange'
+            app.InstrIntersect = True
+        else: app.InstrFill, app.InstrIntersect = 'darkGreen', False
     else: 
-        app.lvl1Fill, app.lvl2Fill = 'darkBlue', 'darkGreen'
-        app.lvl1Intersect, app.lvl2Intersect = False, False
+        app.lvl1Fill, app.InstrFill = 'darkBlue', 'darkGreen'
+        app.lvl1Intersect, app.InstrIntersect = False, False
 
 def menu_onMousePress(app, mouseX, mouseY):
     if app.lvl1Intersect:
         loadLvl1(app)
         setActiveScreen('lvl1')
-    if app.lvl2Intersect:
-        # setActiveScreen('Level 2')
+    if app.InstrIntersect:
+        setActiveScreen('instructions')
         pass
 
 # ------------------------------------------------------------------------------
+
+# -----------------------instructions screen------------------------------------
+def instructions_redrawAll(app):
+    drawImage(app.backgroundImage, 0, 0)
+    drawRect(0,0,app.width,app.height, fill='black', opacity=85)
+    drawLabel("Your goal is to eliminate all the enemies.", app.width/2, app.height/3, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("When near a door, press 'e' to open it.", app.width/2, app.height/3+50, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("When near stairs, press 'w' or 's' to use them accordingly.", app.width/2, app.height/3+100, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("Left Click the mouse buttons to shoot.", app.width/2, app.height/3+150, font='monospace', fill='white', size=25, bold=True)
+    drawLabel("Good Luck!", app.width/2, app.height/3+200, font='monospace', fill='white', size=25, bold=True)
+
+    if app.menuIntersect:
+        drawButton('Menu', app.width/2, 3*app.height/4, app.buttonW, app.buttonH, 'orange')
+    else:
+        drawButton('Menu', app.width/2, 3*app.height/4, app.buttonW, app.buttonH, 'darkblue')
+    
+def instructions_onMouseMove(app, mouseX, mouseY):
+    app.c1x, app.c2x = mouseX, mouseX
+    app.c1y, app.c2y = mouseY, mouseY
+    if ((app.width/2 - app.buttonW/2 < mouseX < app.width/2 + app.buttonW/2) and 
+        (3*app.height/4 - app.buttonH/2 < mouseY < 3*app.height/4 + app.buttonH/2)):
+            app.menuIntersect = True
+    else: app.menuIntersect = False
+
+
+def instructions_onMousePress(app, mouseX, mouseY):
+    if app.retryIntersect:
+        loadLvl1(app)
+        setActiveScreen(app.prevLvl)
+    if app.menuIntersect:
+        setActiveScreen('menu')
+# ------------------------------------------------------------------------------
+
+# -----------------------win screen---------------------------------------------
+def win_redrawAll(app):
+    drawImage(app.backgroundImage, 0, 0)
+    drawRect(0,0,app.width,app.height, fill='black', opacity=85)
+    drawLabel("You Won!", app.width/2, app.height/3, font='monospace', fill='white', size=25, bold=True)
+    drawLabel(f"Your elapsed time was around {pythonRound(app.end-app.begin)} seconds!", app.width/2, app.height/3+50, font='monospace', fill='white', size=25, bold=True)
+    
+    if app.retryIntersect:
+        drawButton('Retry', app.width/2, app.height/2, app.buttonW, app.buttonH, 'orange')
+    else:
+        drawButton('Retry', app.width/2, app.height/2, app.buttonW, app.buttonH, 'darkBlue')
+    if app.menuIntersect:
+        drawButton('Menu', app.width/2, 3*app.height/4, app.buttonW, app.buttonH, 'orange')
+    else:
+        drawButton('Menu', app.width/2, 3*app.height/4, app.buttonW, app.buttonH, 'darkblue')
+    
+def win_onMouseMove(app, mouseX, mouseY):
+    if ((app.width/2 - app.buttonW/2 < mouseX < app.width/2 + app.buttonW/2) and 
+        (app.height/2 - app.buttonH/2 < mouseY < app.height/2 + app.buttonH/2)):
+            app.retryIntersect = True
+    else: app.retryIntersect = False
+    if ((app.width/2 - app.buttonW/2 < mouseX < app.width/2 + app.buttonW/2) and 
+        (3*app.height/4 - app.buttonH/2 < mouseY < 3*app.height/4 + app.buttonH/2)):
+            app.menuIntersect = True
+    else: app.menuIntersect = False
+
+
+def win_onMousePress(app, mouseX, mouseY):
+    if app.retryIntersect:
+        loadLvl1(app)
+        setActiveScreen(app.prevLvl)
+    if app.menuIntersect:
+        setActiveScreen('menu')
 
 # --------------------------pause menu------------------------------------------
 
@@ -873,7 +926,7 @@ def pause_redrawAll(app):
         # drawing the "base ground"
         drawLine(0, app.lvl1ground1, app.width, app.lvl1ground1, lineWidth = 5)
 
-        # ---------------******LEVEL SPECIFIC******---------------------------------
+        # ---------------******LEVEL SPECIFIC******-----------------------------
         # draw vertical walls
         for vWall in app.lvl1vWallList:
             vWall.drawWall(app)
@@ -905,8 +958,12 @@ def pause_redrawAll(app):
             bullet.draw()
     
     drawRect(0,0,app.width,app.height, fill='black', opacity=60)
-    # drawLabel('Game Paused! Press p to resume.', app.width/2, app.height/4,
-    #           font='monospace')
+    drawLabel('Game Paused! Press p to resume.', app.width/2, app.height/4,
+              font='monospace', size=24, fill='white')
+    
+def pause_onKeyPress(app, key):
+    if key == 'p':
+        setActiveScreen('lvl1')
 
 
 # ------------------------------------------------------------------------------
@@ -930,7 +987,6 @@ def gameOver_redrawAll(app):
 def gameOver_onMouseMove(app, mouseX, mouseY):
     app.c1x, app.c2x = mouseX, mouseX
     app.c1y, app.c2y = mouseY, mouseY
-    # print('baller')
     if ((app.width/2 - app.buttonW/2 < mouseX < app.width/2 + app.buttonW/2) and 
         (app.height/2 - app.buttonH/2 < mouseY < app.height/2 + app.buttonH/2)):
             app.retryIntersect = True
@@ -946,6 +1002,8 @@ def gameOver_onMousePress(app, mouseX, mouseY):
         setActiveScreen(app.prevLvl)
     if app.menuIntersect:
         setActiveScreen('menu')
+
+
 
 # ------------------------------------------------------------------------------
 
